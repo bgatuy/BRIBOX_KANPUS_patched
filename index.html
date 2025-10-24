@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Login — Bribox Kanpus</title>
+  <link rel="stylesheet" href="/assets/css/style.css"/>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script>window.GOOGLE_CLIENT_ID="PASTE_YOUR_CLIENT_ID.apps.googleusercontent.com";</script>
+  <script>window.GOOGLE_DRIVE_SCOPES="https://www.googleapis.com/auth/drive.file";</script>
+  <style>
+    body{display:grid;place-items:center;min-height:100dvh;background:#f8fafc}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:28px;max-width:380px;width:92%;box-shadow:0 6px 24px rgba(0,0,0,.05)}
+    .muted{color:#64748b;font-size:14px}
+    .brand{font-weight:700;font-size:20px;margin-bottom:4px}
+    #boot{display:none;margin-top:14px}
+  </style>
+</head>
+<body>
+  <section class="card">
+    <div class="brand">Bribox Kanpus</div>
+    <h2 style="margin:0 0 8px">Masuk</h2>
+    <p class="muted">Silakan login dengan akun Google.</p>
+    <div id="gsi-btn" style="display:inline-block;margin-top:12px"></div>
+    <div id="boot"><p class="muted" id="boot-msg">Menyiapkan penyimpanan…</p></div>
+  </section>
+
+  <script type="module">
+    import { getSession, AuthEvents, requestDriveToken } from '/assets/js/auth.js';
+    import { bootstrapSync } from '/assets/js/bootstrap-sync.js';
+
+    const boot = document.getElementById('boot');
+    const bootMsg = document.getElementById('boot-msg');
+    const setMsg = (t)=>{ boot.style.display='block'; bootMsg.textContent=t; };
+
+    async function run(){
+      try{
+        setMsg('Meminta akses Google Drive…');
+        await requestDriveToken(true);
+        setMsg('Menyiapkan folder & data bulan aktif…');
+        await bootstrapSync({ setMsg });
+        location.replace('/pages/trackmate/index.html');
+      }catch(e){
+        setMsg('Gagal inisialisasi: ' + (e?.message||e));
+        console.error(e);
+      }
+    }
+
+    if (getSession()) run();
+    AuthEvents.addEventListener('signin', run);
+  </script>
+  <script type="module" src="/assets/js/auth.js"></script>
+</body>
+</html>

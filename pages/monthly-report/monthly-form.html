@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+
+<html lang="id">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>BRIBOX KANPUS</title>
+<link href="/public/favicon.png" rel="icon" type="image/png"/>
+<link href="/assets/css/style.css" rel="stylesheet"/>
+<link href="monthly-form.css" rel="stylesheet"/>
+<link rel="stylesheet" href="/assets/css/theme.css">
+<!-- guard overflow supaya konten gak meluber -->
+<style>body[data-page="monthly"] .dashboard .main{min-width:0}</style>
+<script type="module" src="/assets/js/auth.js"></script>
+</head>
+<body>
+<script type="module">
+  import { getSession } from '/assets/js/auth.js';
+  if (!getSession()) location.replace('/index.html');
+</script>
+ data-page="monthly">
+<div class="dashboard">
+<!-- Sidebar -->
+<aside class="sidebar">
+<h2 class="logo">
+<img alt="Logo" class="logo-icon" src="/public/favicon.png"/> BRIBOX KANPUS
+      </h2>
+<nav>
+<a href="/pages/trackmate/index.html">📋 Trackmate</a>
+<a href="/pages/appsheet/index.html">📋 AppSheet</a>
+<a href="/pages/form-serah-terima/index.html">📝 Form Serah Terima</a>
+<button aria-controls="nav-monthly" aria-expanded="true" class="nav-group" onclick="
+          const t=this;const m=document.getElementById('nav-monthly');
+          const ex=t.getAttribute('aria-expanded')==='true';
+          t.setAttribute('aria-expanded', String(!ex)); m.hidden=ex;
+        " type="button">📅 Monthly Report</button>
+<div class="submenu" id="nav-monthly">
+<a class="active" href="monthly-form.html">Monthly Report Form</a>
+<a href="monthly-data.html">Monthly Report Data</a>
+</div>
+</nav>
+<div aria-label="Project credit" class="sidebar-credit">
+        Web App Created By BangAtuy - 2025
+      </div>
+</aside>
+<!-- Main wrapper (INI yang bikin layout kembali rapi) -->
+<main class="main">
+<header class="dashboard-header">
+<button aria-label="Toggle sidebar" class="sidebar-toggle-btn" onclick="toggleSidebar()" type="button">
+<span aria-hidden="true">☰</span>
+</button>
+<h1>Monthly Report Form</h1>
+<button aria-label="Toggle dark mode" id="toggleModeBtn" onclick="toggleDarkMode()" type="button">
+<span aria-hidden="true">🌙</span>
+</button>
+</header>
+<!-- ======= KONTEN FORM (struktur ASLI tetap) ======= -->
+<section class="card">
+<h3 style="text-align:left;margin-bottom:8px">Input SPJ Harian</h3>
+<p class="muted" style="margin:-6px 0 12px">Di Rekap di halaman Data.</p>
+<form autocomplete="on" id="formReport">
+<div class="grid">
+<label class="field">
+<span>Bulan <em>*</em></span>
+<input id="bulan" name="bulan" required="" type="month"/>
+</label>
+<label class="field">
+<span>Tanggal <em>*</em></span>
+<input id="tanggal" name="tanggal" required="" type="date"/>
+</label>
+<label class="field">
+<span>Teknisi <em>*</em></span>
+<div class="row-inline"><select id="teknisi" name="teknisi" required=""></select></div>
+</label>
+<label class="field">
+<span>Jenis Pekerjaan</span>
+<select id="jenis" name="jenis">
+<option value="Corrective Maintenance">Corrective Maintenance</option>
+<option value="Preventive Maintenance">Preventive Maintenance</option>
+<option value="Pekerjaan Tambahan">Pekerjaan Tambahan</option>
+</select>
+</label>
+<label class="field">
+<span>Lokasi — Dari</span>
+<input id="lokasiDari" name="lokasiDari" placeholder="cth: Kantor Pusat"/>
+</label>
+<label class="field">
+<span>Lokasi — Ke</span>
+<input id="lokasiKe" name="lokasiKe" placeholder="cth: Menara BriLian / Div. PLO"/>
+</label>
+<label class="field">
+<span>Detail Pekerjaan</span>
+<input id="detail" name="detail" placeholder="cth: Troubleshooting"/>
+</label>
+<label class="field">
+<span>Status</span>
+<select id="status" name="status">
+<option value="Done">Done</option>
+<option value="Pending">Pending</option>
+</select>
+</label>
+<label class="field">
+<span>Jam Berangkat</span>
+<input id="jamBerangkat" name="jamBerangkat" step="60" type="time"/>
+</label>
+<label class="field">
+<span>Jam Masuk Laporan (auto)</span>
+<input id="jamMasuk" name="jamMasuk" readonly="" step="60" type="time"/>
+</label>
+<label class="field">
+<span>Jam Tiba</span>
+<input id="jamTiba" name="jamTiba" step="60" type="time"/>
+</label>
+<label class="field">
+<span>Jam Mulai Pekerjaan</span>
+<input id="jamMulai" name="jamMulai" step="60" type="time"/>
+</label>
+<label class="field">
+<span>Jam Selesai</span>
+<input id="jamSelesai" name="jamSelesai" step="60" type="time"/>
+</label>
+<label class="field">
+<span>Waktu Penyelesaian (auto)</span>
+<input id="durasiPenyelesaian" name="durasiPenyelesaian" placeholder="0:00" readonly="" type="text"/>
+</label>
+<label class="field">
+<span>Jarak Tempuh (km)</span>
+<input id="jarak" inputmode="decimal" min="0" name="jarak" placeholder="0" step="0.1" type="number"/>
+</label>
+<label class="field">
+<span>Waktu Tempuh (auto)</span>
+<input id="waktuTempuh" name="waktuTempuh" placeholder="0:00" readonly="" type="text"/>
+</label>
+</div>
+<label class="field full">
+<span>Keterangan</span>
+<textarea id="keterangan" name="keterangan" placeholder="Tambahan detail jika perlu..." rows="3"></textarea>
+</label>
+<div class="toolbar">
+<div class="toolbar-left">
+<button class="btn primary" type="submit">Simpan</button>
+<button class="btn danger" type="reset">Reset</button>
+</div>
+<div class="toolbar-right">
+<a class="btn info" href="monthly-data.html" id="linkData">Lihat Data</a>
+</div>
+</div>
+</form>
+<!-- meta tetap di dalam card ini, di luar form -->
+<div class="meta-inline">
+<strong id="countBulan">0</strong>
+<span>Entri data tersimpan untuk bulan ini</span>
+</div>
+</section>
+<div aria-live="polite" class="toast" id="toast" role="status"></div>
+</main>
+</div>
+<script>
+    (function(){
+      const m=document.getElementById('nav-monthly');
+      const p=document.querySelector('.nav-group[aria-controls="nav-monthly"]');
+      if(!m||!p) return;
+      const hasActive=!!m.querySelector('a.active');
+      p.setAttribute('aria-expanded', hasActive?'true':'false');
+      m.hidden=!hasActive;
+    })();
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (document.body.dataset.page !== 'monthly') return;
+
+      // cari grid form utama
+      const grid = document.querySelector('body[data-page="monthly"] .grid');
+      if (!grid) return;
+
+      // helper: cari .field berdasarkan teks label (span pertama di dalam .field)
+      const findFieldByLabel = (txt) => {
+        const fields = grid.querySelectorAll('.field');
+        const norm = s => s.replace(/\s+/g,' ').trim().toLowerCase();
+        const want = norm(txt);
+        return Array.from(fields).find(f => {
+          const sp = f.querySelector(':scope > span');
+          return sp && norm(sp.textContent) === want;
+        });
+      };
+
+      // target yang mau ditukar
+      const fBerangkat = findFieldByLabel('Jam Berangkat');
+      const fLaporan  = findFieldByLabel('Jam Masuk Laporan (auto)');
+
+      if (fBerangkat && fLaporan && fBerangkat !== fLaporan) {
+        // swap posisi node di dalam grid (tanpa clone → event/listener tetap aman)
+        const placeholder = document.createElement('div');
+        grid.insertBefore(placeholder, fBerangkat);
+        grid.replaceChild(fBerangkat, fLaporan);
+        grid.insertBefore(fLaporan, placeholder);
+        grid.removeChild(placeholder);
+      }
+    });
+  </script>
+<script src="monthly-form.js"></script>
+</body>
+</html>

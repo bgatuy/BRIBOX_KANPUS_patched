@@ -1,0 +1,16 @@
+{
+  "name": "bribox_kanpus_patched",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "multiparty": "^4.2.3",
+    "pdf-parse": "^2.4.5"
+  }
+}

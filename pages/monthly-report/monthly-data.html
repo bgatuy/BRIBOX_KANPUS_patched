@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+
+<html lang="id">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>BRIBOX KANPUS</title>
+<link href="/public/favicon.png" rel="icon" type="image/png"/>
+<link href="/assets/css/style.css" rel="stylesheet"/>
+<link href="monthly-data.css" rel="stylesheet"/>
+<link rel="stylesheet" href="/assets/css/theme.css">
+<!-- guard overflow supaya konten gak meluber -->
+<style>body[data-page="monthly"] .dashboard .main{min-width:0}</style>
+<script type="module" src="/assets/js/auth.js"></script>
+</head>
+<body>
+<script type="module">
+  import { getSession } from '/assets/js/auth.js';
+  if (!getSession()) location.replace('/index.html');
+</script>
+ data-page="monthly">
+<div class="dashboard">
+<!-- Sidebar -->
+<aside class="sidebar">
+<h2 class="logo">
+<img alt="Logo" class="logo-icon" src="/public/favicon.png"/> BRIBOX KANPUS
+  </h2>
+<nav>
+<a href="/pages/trackmate/index.html">📋 Trackmate</a>
+<a href="/pages/appsheet/index.html">📋 AppSheet</a>
+<a href="/pages/form-serah-terima/index.html">📝 Form Serah Terima</a>
+<!-- Parent collapsible -->
+<button aria-controls="nav-monthly" aria-expanded="true" class="nav-group" onclick="
+      const t=this;const m=document.getElementById('nav-monthly');
+      const ex=t.getAttribute('aria-expanded')==='true';
+      t.setAttribute('aria-expanded', String(!ex)); m.hidden=ex;
+    " type="button">📅 Monthly Report</button>
+<!-- Submenu -->
+<div class="submenu" id="nav-monthly">
+<a href="monthly-form.html">Monthly Report Form</a>
+<a class="active" href="monthly-data.html">Monthly Report Data</a>
+</div>
+</nav>
+<div aria-label="Project credit" class="sidebar-credit">
+        Web App Created By BangAtuy - 2025
+      </div>
+</aside>
+<!-- Main -->
+<main class="main">
+<header class="dashboard-header">
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()">☰</button>
+<h1>Monthly Report Data</h1>
+<button id="toggleModeBtn" onclick="toggleDarkMode()">🌙</button>
+</header>
+<!-- ====== KARTU KONTROL (filter + tombol aksi) ====== -->
+<section class="card controls">
+<div class="controls-left">
+<span class="badge" id="badgeMonth">—</span>
+<input class="search-input" id="q" placeholder="Cari apa saja (teknisi, lokasi, detail, status, tanggal, keterangan)..."/>
+</div>
+<div class="controls-right">
+<a class="btn info" href="monthly-form.html">Tambah Data</a>
+<button class="btn primary" id="btnExportXlsx">Export XLSX</button>
+<button class="btn danger" id="btnReset">Reset Bulan</button>
+</div>
+</section>
+<!-- ====== TABEL (struktur kolom ASLI dipertahankan) ====== -->
+<section class="card table-area">
+<div class="tablewrap" id="tablewrap">
+<table class="table" id="table">
+<thead>
+<tr class="h1">
+<th rowspan="2">Tanggal</th>
+<th class="col-teknisi" rowspan="2">Teknisi</th>
+<th class="center" colspan="2">Lokasi</th>
+<th rowspan="2">Jenis Pekerjaan</th>
+<th rowspan="2">Detail Pekerjaan</th>
+<th rowspan="2">Status Pekerjaan</th>
+<th class="center" colspan="5">Waktu</th>
+<th rowspan="2">Waktu Penyelesaian</th>
+<th class="num" rowspan="2">Jarak Tempuh</th>
+<th rowspan="2">Waktu Tempuh</th>
+<th rowspan="2">Keterangan</th>
+<th class="col-aksi" rowspan="2">Aksi</th>
+</tr>
+<tr class="h2">
+<th>Dari</th><th>Ke</th>
+<th>Jam Masuk Laporan</th><th>Jam Berangkat</th><th>Jam Tiba</th>
+<th>Jam Mulai Pekerjaan</th><th>Jam Selesai</th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+</div>
+<div class="empty" id="empty">Belum ada data untuk bulan ini.</div>
+</section>
+<div aria-live="polite" class="toast" id="toast" role="status"></div>
+</main>
+</div>
+<script>
+  function setStickyOffsets(){
+      const h1 = document.querySelector('.table thead tr.h1');
+      if(!h1) return;
+      const h = Math.ceil(h1.getBoundingClientRect().height);
+      // targetkan langsung ke body[data-page="monthly"] supaya override benar
+      const bodyMonthly = document.querySelector('body[data-page="monthly"]') || document.body;
+      bodyMonthly.style.setProperty('--th-h1', h + 'px');
+    }
+    window.addEventListener('load', setStickyOffsets);
+    window.addEventListener('resize', setStickyOffsets);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(setStickyOffsets);
+    window.recalcStickyHeader = setStickyOffsets;
+
+    // buka submenu otomatis jika salah satu child memiliki .active
+    (function(){
+      const m=document.getElementById('nav-monthly');
+      const p=document.querySelector('.nav-group[aria-controls="nav-monthly"]');
+      if(!m||!p) return;
+      const hasActive=!!m.querySelector('a.active');
+      p.setAttribute('aria-expanded', hasActive?'true':'false');
+      m.hidden=!hasActive;
+    })();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+<script src="monthly-data.js"></script>
+</body>
+</html>
