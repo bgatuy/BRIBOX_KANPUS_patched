@@ -13,7 +13,7 @@ export function requestDriveToken(forcePrompt = false) {
         tokenClient = google.accounts.oauth2.initTokenClient({
           client_id: window.GOOGLE_CLIENT_ID,
           scope: window.GOOGLE_DRIVE_SCOPES || "https://www.googleapis.com/auth/drive.file",
-          prompt: "", // kosong = silent kalau bisa
+          prompt: "",
           callback: (resp) => {
             if (resp?.access_token) {
               accessToken = resp.access_token;
@@ -26,9 +26,7 @@ export function requestDriveToken(forcePrompt = false) {
         });
       }
       tokenClient?.requestAccessToken({ prompt: forcePrompt ? "consent" : "" });
-    } catch (e) {
-      reject(e);
-    }
+    } catch (e) { reject(e); }
   });
 }
 
