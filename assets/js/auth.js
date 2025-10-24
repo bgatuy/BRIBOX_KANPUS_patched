@@ -6,17 +6,32 @@ let tokenClient=null, accessToken=null;
 export function getSession(){ try { return JSON.parse(localStorage.getItem(LS_KEY)||"null"); } catch { return null; } }
 function setSession(s){ if(!s) localStorage.removeItem(LS_KEY); else localStorage.setItem(LS_KEY, JSON.stringify(s)); AuthEvents.dispatchEvent(new Event(s?'signin':'signout')); }
 export function getAccessToken(){ return accessToken; }
-export function requestDriveToken(forcePrompt=false){
-  if (!tokenClient && window.google?.accounts?.oauth2){
-    tokenClient = google.accounts.oauth2.initTokenClient({
-      client_id: window.GOOGLE_CLIENT_ID,
-      scope: window.GOOGLE_DRIVE_SCOPES||"https://www.googleapis.com/auth/drive.file",
-      prompt: "",
-      callback: (resp)=>{ if(resp?.access_token){ accessToken = resp.access_token; AuthEvents.dispatchEvent(new Event('token')); } }
-    });
-  }
-  tokenClient?.requestAccessToken({ prompt: forcePrompt?'consent':'' });
+export function requestDriveToken(forcePrompt = false) {
+  return new Promise((resolve, reject) => {
+    try {
+      if (!tokenClient && window.google?.accounts?.oauth2) {
+        tokenClient = google.accounts.oauth2.initTokenClient({
+          client_id: window.GOOGLE_CLIENT_ID,
+          scope: window.GOOGLE_DRIVE_SCOPES || "https://www.googleapis.com/auth/drive.file",
+          prompt: "", // kosong = silent kalau bisa
+          callback: (resp) => {
+            if (resp?.access_token) {
+              accessToken = resp.access_token;
+              AuthEvents.dispatchEvent(new Event("token"));
+              resolve(accessToken);
+            } else {
+              reject(new Error("No access token"));
+            }
+          },
+        });
+      }
+      tokenClient?.requestAccessToken({ prompt: forcePrompt ? "consent" : "" });
+    } catch (e) {
+      reject(e);
+    }
+  });
 }
+
 function parseJwt(jwt){ try{ return JSON.parse(atob(jwt.split('.')[1])); }catch{return null;} }
 function init(){
   const c=document.getElementById('gsi-btn');

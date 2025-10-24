@@ -3,12 +3,24 @@ import { getAccessToken, requestDriveToken } from './auth.js';
 const API = "https://www.googleapis.com/drive/v3";
 const UPLOAD = "https://www.googleapis.com/upload/drive/v3";
 
-async function fetchDrive(url, opts={}){
-  if (!getAccessToken()) { requestDriveToken(); throw new Error("No access token"); }
-  const res = await fetch(url, { ...opts, headers: { ...(opts.headers||{}), Authorization: `Bearer ${getAccessToken()}` } });
-  if (!res.ok){ const t=await res.text(); const e=new Error(`Drive ${res.status}: ${t}`); e.status=res.status; throw e; }
+async function fetchDrive(url, opts = {}) {
+  if (!getAccessToken()) {
+    // coba minta token dulu (silent), kalau belum pernah akan prompt saat login page
+    await requestDriveToken();
+  }
+  const res = await fetch(url, {
+    ...opts,
+    headers: { ...(opts.headers || {}), Authorization: `Bearer ${getAccessToken()}` },
+  });
+  if (!res.ok) {
+    const t = await res.text();
+    const e = new Error(`Drive ${res.status}: ${t}`);
+    e.status = res.status;
+    throw e;
+  }
   return res;
 }
+
 function mp(meta, blob){
   const b="-------314159265358979323846", d=`\r\n--${b}\r\n`, end=`\r\n--${b}--`;
   const m=new Blob([JSON.stringify(meta)], {type:'application/json'});
