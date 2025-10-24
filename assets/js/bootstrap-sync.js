@@ -1,12 +1,5 @@
 // Bootstrap once after login
 import { ensureUserFolders } from './drive-sync.js';
-export async function bootstrapSync({ setMsg }={}){
-  setMsg?.('Menyiapkan folder…');
-  await ensureUserFolders();
-  setMsg?.('Selesai.');
-}
-
-import { ensureUserFolders } from './drive-sync.js';
 import { getAccessToken } from './auth.js';
 
 export async function bootstrapSync({ setMsg } = {}) {
