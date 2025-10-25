@@ -52,7 +52,6 @@ export async function ensureFolderByName(name, parent = null) {
   return created.id;
 }
 
-
 export async function ensureUserFolders(){
   const root = await ensureFolderByName("Bribox Kanpus");
   const pdfOrig = await ensureFolderByName("file pdf", root);
@@ -83,4 +82,45 @@ export async function emptyFolder(folderId){
     try{ await deleteFile(it.id); ok++; } catch{ fail++; }
   }
   return { ok, fail, total: items.length };
+}
+
+// === Upload PDF idempoten (simpen appProperties.sha256) ===
+export async function findBySha256InFolder(folderId, sha256) {
+  const q = encodeURIComponent(
+    `'${folderId}' in parents and trashed=false and appProperties has { key='sha256' and value='${sha256}' }`
+  );
+  const url = `${API}/files?q=${q}&fields=files(id,name,appProperties,modifiedTime,size)`;
+  const js = await (await fetchDrive(url)).json();
+  return js.files?.[0] || null;
+}
+
+export async function uploadPdfOriginal(file, { sha256, name }, folderIdOverride=null) {
+  const { pdfOrig } = await ensureUserFolders();
+  const parent = folderIdOverride || pdfOrig;
+
+  // idempoten: kalau sudah ada, kembalikan id
+  const exists = await findBySha256InFolder(parent, sha256);
+  if (exists) return { id: exists.id, name: exists.name, sha256 };
+
+  const meta = {
+    name: name || file.name || `upload-${Date.now()}.pdf`,
+    parents: [parent],
+    mimeType: file.type || 'application/pdf',
+    appProperties: { sha256 }
+  };
+  const boundary = 'gdrive314159';
+  const body = new Blob([
+    `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n`,
+    JSON.stringify(meta),
+    `\r\n--${boundary}\r\nContent-Type: ${file.type || 'application/pdf'}\r\n\r\n`,
+    file,
+    `\r\n--${boundary}--`
+  ], { type: `multipart/related; boundary=${boundary}` });
+
+  const res = await fetchDrive(
+    `${UPLOAD}/files?uploadType=multipart&fields=id,name,appProperties`,
+    { method: 'POST', body }
+  );
+  const js = await res.json();
+  return { id: js.id, name: js.name, sha256 };
 }
