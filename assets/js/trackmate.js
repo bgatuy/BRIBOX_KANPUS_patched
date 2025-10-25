@@ -1,11 +1,5 @@
 // ====== Trackmate ======
 
-// ====== Trackmate ======
-import { requestDriveToken } from './auth.js';
-import { uploadPdfOriginal } from './drive-sync.js';
-import { appendSerahTerimaDraft } from './formserahterima.js';
-
-
 /* ========= HASH UTIL (BARU) ========= */
 async function sha256File(file) {
   try {
@@ -53,11 +47,6 @@ const fileInput    = document.getElementById('pdfFile');
 const output       = document.getElementById('output');
 const copyBtn      = document.getElementById('copyBtn');
 const lokasiSelect = document.getElementById('inputLokasi');
-const textarea     = document.getElementById('displayText') || document.querySelector('textarea');
-let selectedFile = null;
-pdfInput?.addEventListener('change', (e) => {
-  selectedFile = e.target.files?.[0] || null;
-});
 
 // === AUTO-CALIBRATE: cari anchor "Diselesaikan Oleh," dan "Nama & Tanda Tangan" ===
 async function autoCalibratePdf(buffer){
@@ -443,44 +432,6 @@ try {
 } catch (_) {
   // diamkan; nanti toast tetap muncul
 }
-
-try {
-  // === SYNC KE GOOGLE DRIVE ===
-  if (!selectedFile) {
-    // fallback kalau kamu pakai fileInput langsung
-    selectedFile = pdfInput?.files?.[0] || null;
-  }
-  if (!selectedFile) {
-    console.warn('Tidak ada file untuk di-upload ke Drive.');
-  } else {
-    await requestDriveToken(); // pastikan token ada
-    const sha256 = await sha256File(selectedFile);
-
-    // 1) Upload PDF asli ke folder "file pdf"
-    const up = await uploadPdfOriginal(selectedFile, {
-      sha256,
-      name: selectedFile.name
-    });
-
-    // 2) Simpan draft ke data/serahterima-drafts-YYYY-MM.json
-    const lokasi = lokasiSelect?.value || '';
-    const extractedText = textarea?.value || '';
-    await appendSerahTerimaDraft({
-      driveFileId: up.id,
-      fileName: up.name,
-      sha256,
-      lokasiDivisi: lokasi,
-      extractedText
-    });
-
-    showToast('✔ PDF ter-upload & draft tersimpan di Drive', 3000, 'success');
-    console.log('[Drive] upload OK:', up);
-  }
-} catch (e) {
-  console.error('Sync ke Drive gagal:', e);
-  showToast('⚠ Gagal sync ke Drive. Coba lagi.', 4000, 'warn');
-}
-
 if (copyBtn) {
   copyBtn.textContent = "✔ Copied!";
   setTimeout(() => (copyBtn.textContent = "Copy"), 1500);
