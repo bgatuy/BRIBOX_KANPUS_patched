@@ -27,15 +27,31 @@ function mp(meta, blob){
   return new Blob([d,"Content-Type: application/json; charset=UTF-8\r\n\r\n",m,d,`Content-Type: ${blob.type||'application/json'}\r\n\r\n`,blob,end]);
 }
 
-export async function ensureFolderByName(name, parent=null){
-  const q = encodeURIComponent(`mimeType='application/vnd.google-apps.folder' and name='${name.replace("'","\\'")}' and trashed=false ${parent?`and '${parent}' in parents`:''}`);
-  const js = await (await fetchDrive(`${API}/files?q=${q}&fields=files(id,name)`)).json();
+export async function ensureFolderByName(name, parent = null) {
+  // cari dulu
+  const q = encodeURIComponent(
+    `mimeType='application/vnd.google-apps.folder' and name='${name.replace("'", "\\'")}' and trashed=false` +
+    (parent ? ` and '${parent}' in parents` : '')
+  );
+  const listRes = await fetchDrive(`${API}/files?q=${q}&fields=files(id,name)`);
+  const js = await listRes.json();
   if (js.files?.length) return js.files[0].id;
-  const meta = { name, mimeType:'application/vnd.google-apps.folder', ...(parent?{parents:[parent]}:{}) };
-  const body = mp(meta, new Blob([""], {type:"application/octet-stream"}));
-  const r = await (await fetchDrive(`${UPLOAD}/files?uploadType=multipart&fields=id`, {method:'POST', body})).json();
-  return r.id;
+
+  // kalau belum ada → create folder metadata-only (bukan multipart)
+  const meta = {
+    name,
+    mimeType: 'application/vnd.google-apps.folder',
+    ...(parent ? { parents: [parent] } : {}),
+  };
+  const res = await fetchDrive(`${API}/files?fields=id`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(meta),
+  });
+  const created = await res.json();
+  return created.id;
 }
+
 
 export async function ensureUserFolders(){
   const root = await ensureFolderByName("Bribox Kanpus");
