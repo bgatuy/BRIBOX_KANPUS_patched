@@ -49,16 +49,15 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 /* ========= Query DOM ========= */
-const pdfInput     = document.getElementById('pdfFile');
-const lokasiSelect = document.getElementById('inputLokasi');
+const fileInput    = document.getElementById('pdfFile');
+const output       = document.getElementById('output');
 const copyBtn      = document.getElementById('copyBtn');
+const lokasiSelect = document.getElementById('inputLokasi');
 const textarea     = document.getElementById('displayText') || document.querySelector('textarea');
-
 let selectedFile = null;
 pdfInput?.addEventListener('change', (e) => {
   selectedFile = e.target.files?.[0] || null;
 });
-
 
 // === AUTO-CALIBRATE: cari anchor "Diselesaikan Oleh," dan "Nama & Tanda Tangan" ===
 async function autoCalibratePdf(buffer){
@@ -441,7 +440,11 @@ try {
     document.execCommand("copy");
     document.body.removeChild(ta);
   }
-  try {
+} catch (_) {
+  // diamkan; nanti toast tetap muncul
+}
+
+try {
   // === SYNC KE GOOGLE DRIVE ===
   if (!selectedFile) {
     // fallback kalau kamu pakai fileInput langsung
@@ -477,9 +480,7 @@ try {
   console.error('Sync ke Drive gagal:', e);
   showToast('⚠ Gagal sync ke Drive. Coba lagi.', 4000, 'warn');
 }
-} catch (_) {
-  // diamkan; nanti toast tetap muncul
-}
+
 if (copyBtn) {
   copyBtn.textContent = "✔ Copied!";
   setTimeout(() => (copyBtn.textContent = "Copy"), 1500);
